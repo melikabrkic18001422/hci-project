@@ -29,6 +29,83 @@
 			<link rel="stylesheet" href="css/animate.min.css">
 			<link rel="stylesheet" href="css/owl.carousel.css">				
 			<link rel="stylesheet" href="css/main.css">
+			<script src="jquery-3.6.0.min.js"></script>
+			<script>
+				$(document).ready(function(){
+				$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+						data.flights.forEach((item, index) =>{
+							$('#flights').append(`<tr>
+								<td>${item.to}</td>
+								<td>${item.from}</td>
+								<td>${item.start_date}</td>
+								<td>${item.return_date}</td>
+								<td>${item.adults}</td>
+								<td>${item.child}</td>
+								<td>
+									<div class="row">
+										<button type="button" class="btn btn-success"  value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+										<span></span>
+										<button type="button" class="btn btn-danger">Delete</button>
+									</div>
+								</td>
+								</tr>`);
+						})
+					});
+				  $("#btnSubmit").click(function(){
+					//stop submit the form, we will post it manually.
+					event.preventDefault();
+					let to = $("input[name='to']").val();
+					let from = $("input[name='from']").val();
+					let start = $("input[name='start']").val();
+					let return_date =$("input[name='return']").val();
+					let child= $("input[name='child']").val();
+					let adults = $("input[name='adults']").val();
+					$.post("http://127.0.0.1:8000/api/book-flight/",
+					{
+					  to: to,
+					  from: from,
+					  return: return_date,
+					  start: start,
+					  child: child,
+					  adults: adults
+					},
+					function(){
+						$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+							data.flights.forEach((item, index) =>{
+								$('#flights').append(`<tr>
+									<td>${item.to}</td>
+									<td>${item.from}</td>
+									<td>${item.start_date}</td>
+									<td>${item.return_date}</td>
+									<td>${item.adults}</td>
+									<td>${item.child}</td>
+									<td>
+										<div class="row">
+											<button type="button" class="btn btn-success" value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+											<button type="button" class="btn btn-danger">Delete</button>
+										</div>
+					  				</td>
+									</tr>`);
+							})
+						});
+					  	var form = document.getElementById("myForm");
+						form.reset();
+					});
+				  });
+				});
+
+				function dosomething(value){
+					$.post("http://127.0.0.1:8000/api/flight-data/", {flight_id:value}, (data, status)=>{
+						$("input[name='to-edit']").val()=data.to
+					})
+					
+				}
+				$('#myModal').on('shown.bs.modal', function () {
+  					$('#myInput').trigger('focus')
+				})
+
+
+			</script>
 		</head>
 		<body>	
 			<header id="header">
@@ -50,8 +127,7 @@
 				      <nav id="nav-menu-container">
 				        <ul class="nav-menu">
 				          <li><a href="index.html">Home</a></li>
-				          <li><a href="about.html">About Us</a></li>
-				          </li>					          					          		          
+				          <li><a href="about.html">About Us</a></li>					          		          
 				          <li><a href="contact.html">Contact</a></li>
 				        </ul>
 				      </nav><!-- #nav-menu-container -->					      		  
@@ -70,48 +146,24 @@
 							<p class="text-white">
 								If you are looking for fast, safe and cheap flights for your favorite destinations, book a flight with us.
 							</p>
-							
 						</div>
 						<div class="col-lg-4 col-md-6 banner-right">
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
 							  <li class="nav-item">
 							    <a class="nav-link active" id="flight-tab" data-toggle="tab" href="#flight" role="tab" aria-controls="flight" aria-selected="true">Flights</a>
 							  </li>
-							 
 							</ul>
 							<div class="tab-content" id="myTabContent">
 							  <div class="tab-pane fade show active" id="flight" role="tabpanel" aria-labelledby="flight-tab">
-								<form class="form-wrap">
-									<input type="text" class="form-control" name="name" placeholder="From " onfocus="this.placeholder = ''" onblur="this.placeholder = 'From '">									
-									<input type="text" class="form-control" name="to" placeholder="To " onfocus="this.placeholder = ''" onblur="this.placeholder = 'To '">
-									<input type="text" class="form-control date-picker" name="start" placeholder="Start " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Start '">
-									<input type="text" class="form-control date-picker" name="return" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
-									<input type="number" min="1" max="20" class="form-control" name="adults" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
-									<input type="number" min="1" max="20" class="form-control" name="child" placeholder="Children " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">							
-									<a href="#" class="primary-btn text-uppercase">Search flights</a>									
+								<form class="form-wrap" id="myForm">
+									<input  type="text" class="form-control" name="from" placeholder="From " onfocus="this.placeholder = ''" onblur="this.placeholder = 'From '">									
+									<input  type="text" class="form-control" name="to" placeholder="To " onfocus="this.placeholder = ''" onblur="this.placeholder = 'To '">
+									<input  type="text" class="form-control date-picker" name="start" placeholder="Start " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Start '">
+									<input  type="text" class="form-control date-picker" name="return" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
+									<input  type="number" min="1" max="20" class="form-control" name="adults" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
+									<input  type="number" min="1" max="20" class="form-control" name="child" placeholder="Child " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">								
+									<input type="submit" id="btnSubmit" value="submit" class="primary-btn text-uppercase"/>									
 								</form>
-							  </div>
-							  <div class="tab-pane fade" id="hotel" role="tabpanel" aria-labelledby="hotel-tab">
-								<form class="form-wrap">
-									<input type="text" class="form-control" name="name" placeholder="From " onfocus="this.placeholder = ''" onblur="this.placeholder = 'From '">									
-									<input type="text" class="form-control" name="to" placeholder="To " onfocus="this.placeholder = ''" onblur="this.placeholder = 'To '">
-									<input type="text" class="form-control date-picker" name="start" placeholder="Start " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Start '">
-									<input type="text" class="form-control date-picker" name="return" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
-									<input type="number" min="1" max="20" class="form-control" name="adults" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
-									<input type="number" min="1" max="20" class="form-control" name="child" placeholder="Child " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">						
-									<a href="#" class="primary-btn text-uppercase">Search Hotels</a>									
-								</form>							  	
-							  </div>
-							  <div class="tab-pane fade" id="holiday" role="tabpanel" aria-labelledby="holiday-tab">
-								<form class="form-wrap">
-									<input type="text" class="form-control" name="name" placeholder="From " onfocus="this.placeholder = ''" onblur="this.placeholder = 'From '">									
-									<input type="text" class="form-control" name="to" placeholder="To " onfocus="this.placeholder = ''" onblur="this.placeholder = 'To '">
-									<input type="text" class="form-control date-picker" name="start" placeholder="Start " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Start '">
-									<input type="text" class="form-control date-picker" name="return" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
-									<input type="number" min="1" max="20" class="form-control" name="adults" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
-									<input type="number" min="1" max="20" class="form-control" name="child" placeholder="Child " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">							
-									<a href="#" class="primary-btn text-uppercase">Search Holidays</a>									
-								</form>							  	
 							  </div>
 							</div>
 						</div>
@@ -127,6 +179,7 @@
 		                <div class="menu-content pb-70 col-lg-8">
 		                    <div class="title text-center">
 		                        <h1 class="mb-10">Popular Destinations</h1>
+		                        <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely fast, day.</p>
 		                    </div>
 		                </div>
 		            </div>						
@@ -152,7 +205,7 @@
 								</div>
 								<div class="desc">	
 									<a href="#" class="price-btn">$250</a>			
-									<h4>The city of love</h4>
+									<h4>Dream City</h4>
 									<p>Paris</p>			
 								</div>
 							</div>
@@ -174,118 +227,104 @@
 				</div>	
 			</section>
 			<!-- End popular-destination Area -->
-			
+			<!-- Start flight table Area -->
+			<div class="table-responsive">
+				<table class="table" id="flights">
+					<thead class="thead-yellow">
+						<tr>
+							<tr>
+								<th>To</th>
+								<th>From</th>
+								<th>Start</th>
+								<th>Return</th>
+								<th>Adults</th>
+								<th>Children</th>
+								<th>Actions</th>
+							  </tr>
+						</tr>
+					  </thead>
+					<tr>
+					</tr>
+				  </table>
+			</div>
+			<!-- End Flight table Area -->
+			<!--Edit form-->
+			<!-- Modal -->
+			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					</div>
+					<div class="modal-body">
+						<div class="tab-pane fade show active" id="flight">
+							<form class="form-wrap" id="editForm">
+								<input  type="text" class="form-control" name="from-edit" placeholder="From " onfocus="this.placeholder = ''" onblur="this.placeholder = 'From '">									
+								<input  type="text" class="form-control" name="to-edit" placeholder="To " onfocus="this.placeholder = ''" onblur="this.placeholder = 'To '">
+								<input  type="text" class="form-control date-picker" name="start-edit" placeholder="Start " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Start '">
+								<input  type="text" class="form-control date-picker" name="return-edit" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
+								<input  type="number" min="1" max="20" class="form-control" name="adults-edit" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
+								<input  type="number" min="1" max="20" class="form-control" name="child-edit" placeholder="Child " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">
+								<input  type="number"  class="form-control" name="id" placeholder="id-edit" style="display: none;" onfocus="this.placeholder = ''" onblur="this.placeholder = 'id'">							
+								<input type="submit" id="btnSubmit" value="submit" class="primary-btn text-uppercase"/>									
+							</form>
+						</div>
+					</div>
+				</div>
+				</div>
+			</div>
 
-			<!-- Start price Area -->
-			<section class="price-area section-gap">
+			<!--End Edit form-->
+
+			<section class="area section-gap">
 				<div class="container">
 		            <div class="row d-flex justify-content-center">
-		                <div class="menu-content pb-70 col-lg-8">
+		                <div class="menu-content pb-70 col-lg-9">
 		                    <div class="title text-center">
-		                        <h1 class="mb-10">We Provide Affordable Prices</h1>
 		                        
-		                    </div>
-		                </div>
-		            </div>						
-					<div class="row">
-						<div class="col-lg-4">
-							<div class="single-price">
-								<h4>Cheap Packages</h4>
-								<ul class="price-list">
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Paris</span>
-										<a href="#" class="price-btn">$360</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Madrid</span>
-										<a href="#" class="price-btn">$400</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Cairo</span>
-										<a href="#" class="price-btn">$670</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Tunis</span>
-										<a href="#" class="price-btn">$550</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Moscow</span>
-										<a href="#" class="price-btn">$420</a>
-									</li>	
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Beirut</span>
-										<a href="#" class="price-btn">$590</a>
-									</li>														
-								</ul>
 							</div>
-						</div>
-						<div class="col-lg-4">
-							<div class="single-price">
-								<h4>Luxury Packages</h4>
-								<ul class="price-list">
-									<li class="d-flex justify-content-between align-items-center">
-										<span>New York</span>
-										<a href="#" class="price-btn">$1200</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Maldives</span>
-										<a href="#" class="price-btn">$1550</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Hawaii</span>
-										<a href="#" class="price-btn">$1620</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Nepal</span>
-										<a href="#" class="price-btn">$1750</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Thailand</span>
-										<a href="#" class="price-btn">$1790</a>
-									</li>	
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Singapore</span>
-										<a href="#" class="price-btn">$1830</a>
-									</li>														
-								</ul>
-							</div>
-						</div>
-						<div class="col-lg-4">
-							<div class="single-price">
-								<h4>Camping Packages</h4>
-								<ul class="price-list">
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Mount Cook National Park, New Zealand</span>
-										<a href="#" class="price-btn">$865</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Devon, England</span>
-										<a href="#" class="price-btn">$925</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>The Alps, France</span>
-										<a href="#" class="price-btn">$1500</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Hossa National Park, Finland</span>
-										<a href="#" class="price-btn">$1645</a>
-									</li>
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Skåne, Sweden</span>
-										<a href="#" class="price-btn">$1670</a>
-									</li>	
-									<li class="d-flex justify-content-between align-items-center">
-										<span>Asturias, Spain</span>
-										<a href="#" class="price-btn">$1720</a>
-									</li>														
-								</ul>
-							</div>
-						</div>												
+						</div>																		
 					</div>
 				</div>	
 			</section>
-			<!-- End price Area -->
 			
+		    <section class="area section-gap">
+		        <div class="container">
+		            <div class="row d-flex justify-content-center">
+		                <div class="menu-content pb-70 col-lg-8">
+		                    <div class="title text-center">
+		                        
+		                        </div>
+		                    </div>		                    		                    
+		                </div>
+		            </div>
+		        </div>
+		    </section>
+		
+			<section class="area-gap">
+				<div class="container-fluid">
+					<div class="row align-items-center justify-content-end">
+						<div class="col-lg-6 col-md-12 home-about-left">
+					</div>
+				</div>	
+			</section>
+			
+
+			<section class="area section-gap">
+				<div class="container">
+					<div class="row d-flex justify-content-center">
+						<div class="menu-content pb-60 col-lg-9">
+							<div class="title text-center">
+								
+							</div>														
+
+						</div>
+					</div>
+				</div>	
+			</section>	
 
 			<!-- start footer Area -->		
 			<footer class="footer-area section-gap">
@@ -306,13 +345,8 @@
 								<div class="row">
 									<div class="col">
 										<ul>
-											<li><a href="index.html">Home</a></li>
-											
-										</ul>
-									</div>
-									<div class="col">
-										<ul>
-											<li><a href="contact.html">Contact</a></li>
+											<li><a href="#">Home</a></li>
+											<li><a href="#">Contact</a></li>
 										</ul>
 									</div>										
 								</div>							
@@ -321,8 +355,7 @@
 						<div class="col-lg-3  col-md-6 col-sm-6">
 							<div class="single-footer-widget">
 								<h6>Newsletter</h6>
-								<p>
-									If you would like to be updated with our latest flights and news, sign up for our newsletter via email.									
+								<p>If you would like to be updated with our latest flights and news, sign up for our newsletter via email.			
 								</p>								
 								<div id="mc_embed_signup">
 									<form target="_blank" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01" method="get" class="subscription relative">
@@ -342,9 +375,8 @@
 					</div>
 
 					<div class="row footer-bottom d-flex justify-content-between align-items-center">
-						<p class="col-lg-8 col-sm-12 footer-text m-0">
+						<p class="col-lg-8 col-sm-12 footer-text m-0"><
 Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | </p>
-						
 					</div>
 				</div>
 			</footer>
