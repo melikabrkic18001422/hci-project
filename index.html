@@ -32,42 +32,85 @@
 			<script src="jquery-3.6.0.min.js"></script>
 			<script>
 				$(document).ready(function(){
-				$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
-						data.flights.forEach((item, index) =>{
-							$('#flights').append(`<tr>
-								<td>${item.to}</td>
-								<td>${item.from}</td>
-								<td>${item.start_date}</td>
-								<td>${item.return_date}</td>
-								<td>${item.adults}</td>
-								<td>${item.child}</td>
-								<td>
-									<div class="row">
-										<button type="button" class="btn btn-success"  value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
-										<span></span>
-										<button type="button" class="btn btn-danger">Delete</button>
-									</div>
-								</td>
-								</tr>`);
-						})
+					$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+							data.flights.forEach((item, index) =>{
+								$('#flights').append(`<tr>
+									<td>${item.to}</td>
+									<td>${item.from}</td>
+									<td>${item.start_date}</td>
+									<td>${item.return_date}</td>
+									<td>${item.adults}</td>
+									<td>${item.child}</td>
+									<td>
+										<div class="row">
+											<button type="button" class="btn btn-success"  value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+											<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
+										</div>
+									</td>
+									</tr>`);
+							});
 					});
-				  $("#btnSubmit").click(function(){
+					$("#btnSubmit").click(function(){
+						//stop submit the form, we will post it manually.
+						event.preventDefault();
+						let to = $("input[name='to']").val();
+						let from = $("input[name='from']").val();
+						let start = $("input[name='start']").val();
+						let return_date =$("input[name='return']").val();
+						let child= $("input[name='child']").val();
+						let adults = $("input[name='adults']").val();
+						$.post("http://127.0.0.1:8000/api/book-flight/",
+							{
+							to: to,
+							from: from,
+							return: return_date,
+							start: start,
+							child: child,
+							adults: adults
+							},
+							function(){
+								$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+									data.flights.forEach((item, index) =>{
+										$('#flights').append(`<tr>
+											<td>${item.to}</td>
+											<td>${item.from}</td>
+											<td>${item.start_date}</td>
+											<td>${item.return_date}</td>
+											<td>${item.adults}</td>
+											<td>${item.child}</td>
+											<td>
+												<div class="row">
+													<button type="button" class="btn btn-success" value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+													<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
+												</div>
+											</td>
+											</tr>`
+										);
+									})
+								});
+								var form = document.getElementById("myForm");
+								form.reset();
+							});
+						});
+						$("#editSubmit").click(function(){
 					//stop submit the form, we will post it manually.
 					event.preventDefault();
-					let to = $("input[name='to']").val();
-					let from = $("input[name='from']").val();
-					let start = $("input[name='start']").val();
-					let return_date =$("input[name='return']").val();
-					let child= $("input[name='child']").val();
-					let adults = $("input[name='adults']").val();
-					$.post("http://127.0.0.1:8000/api/book-flight/",
+					let to = $("input[name='to-edit']").val();
+					let from = $("input[name='from-edit']").val();
+					let start = $("input[name='start-edit']").val();
+					let return_date =$("input[name='return-edit']").val();
+					let child= $("input[name='child-edit']").val();
+					let adults = $("input[name='adults-edit']").val();
+					let id = $("input[name='id-edit']").val();
+					$.post("http://127.0.0.1:8000/api/update-flight/",
 					{
 					  to: to,
 					  from: from,
 					  return: return_date,
 					  start: start,
 					  child: child,
-					  adults: adults
+					  adults: adults,
+					  flight_id: id
 					},
 					function(){
 						$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
@@ -82,28 +125,38 @@
 									<td>
 										<div class="row">
 											<button type="button" class="btn btn-success" value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
-											<button type="button" class="btn btn-danger">Delete</button>
+											<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
 										</div>
 					  				</td>
 									</tr>`);
-							})
+							})	
 						});
-					  	var form = document.getElementById("myForm");
-						form.reset();
+						location.reload(true);
 					});
 				  });
 				});
-
 				function dosomething(value){
 					$.post("http://127.0.0.1:8000/api/flight-data/", {flight_id:value}, (data, status)=>{
-						$("input[name='to-edit']").val()=data.to
+						$("input[name='to-edit']").val(data.to)
+						$("input[name='from-edit']").val(data.from)
+						$("input[name='start-edit']").val(data.start_date)
+						$("input[name='return-edit']").val(data.return_date)
+						$("input[name='adults-edit']").val(data.adults)
+						$("input[name='child-edit']").val(data.child)
+						$("input[name='id-edit']").val(data.id)
 					})
 					
-				}
+				};
 				$('#myModal').on('shown.bs.modal', function () {
   					$('#myInput').trigger('focus')
-				})
+				});
 
+				function delete_endpoint(value){
+					$.post("http://127.0.0.1:8000/api/delete-flight/", {flight_id:value}, (data, status)=>{
+						console.log(status)
+						location.reload(true);
+					}); 
+				};
 
 			</script>
 		</head>
@@ -114,7 +167,6 @@
 			  		<div class="row align-items-center">
 			  			<div class="col-lg-6 col-sm-6 col-6 header-top-left">		
 			  			</div>
-			  			<div class="col-lg-6 col-sm-6 col-6 header-top-right">
 			  			</div>
 			  		</div>			  					
 					</div>
@@ -127,7 +179,7 @@
 				      <nav id="nav-menu-container">
 				        <ul class="nav-menu">
 				          <li><a href="index.html">Home</a></li>
-				          <li><a href="about.html">About Us</a></li>					          		          
+				          <li><a href="about.html">About Us</a></li>		          		          
 				          <li><a href="contact.html">Contact</a></li>
 				        </ul>
 				      </nav><!-- #nav-menu-container -->					      		  
@@ -151,7 +203,7 @@
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
 							  <li class="nav-item">
 							    <a class="nav-link active" id="flight-tab" data-toggle="tab" href="#flight" role="tab" aria-controls="flight" aria-selected="true">Flights</a>
-							  </li>
+							  </li>	
 							</ul>
 							<div class="tab-content" id="myTabContent">
 							  <div class="tab-pane fade show active" id="flight" role="tabpanel" aria-labelledby="flight-tab">
@@ -179,7 +231,6 @@
 		                <div class="menu-content pb-70 col-lg-8">
 		                    <div class="title text-center">
 		                        <h1 class="mb-10">Popular Destinations</h1>
-		                        <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely fast, day.</p>
 		                    </div>
 		                </div>
 		            </div>						
@@ -268,8 +319,8 @@
 								<input  type="text" class="form-control date-picker" name="return-edit" placeholder="Return " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Return '">
 								<input  type="number" min="1" max="20" class="form-control" name="adults-edit" placeholder="Adults " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Adults '">
 								<input  type="number" min="1" max="20" class="form-control" name="child-edit" placeholder="Child " onfocus="this.placeholder = ''" onblur="this.placeholder = 'Child '">
-								<input  type="number"  class="form-control" name="id" placeholder="id-edit" style="display: none;" onfocus="this.placeholder = ''" onblur="this.placeholder = 'id'">							
-								<input type="submit" id="btnSubmit" value="submit" class="primary-btn text-uppercase"/>									
+								<input  type="number"  class="form-control" name="id-edit" placeholder="id-edit" style="display: none;" onfocus="this.placeholder = ''" onblur="this.placeholder = 'id'">							
+								<input type="submit" id="editSubmit" value="submit" class="primary-btn text-uppercase"/>									
 							</form>
 						</div>
 					</div>
@@ -279,52 +330,61 @@
 
 			<!--End Edit form-->
 
+			
 			<section class="area section-gap">
 				<div class="container">
 		            <div class="row d-flex justify-content-center">
 		                <div class="menu-content pb-70 col-lg-9">
 		                    <div class="title text-center">
-		                        
-							</div>
 						</div>																		
 					</div>
 				</div>	
 			</section>
+			<!-- End Area -->
 			
-		    <section class="area section-gap">
+
+			<!-- Start Area -->
+		    <section class="-area section-gap">
 		        <div class="container">
 		            <div class="row d-flex justify-content-center">
 		                <div class="menu-content pb-70 col-lg-8">
 		                    <div class="title text-center">
-		                        
+		                       
 		                        </div>
 		                    </div>		                    		                    
 		                </div>
 		            </div>
 		        </div>
 		    </section>
-		
-			<section class="area-gap">
+		    <!-- End area -->
+
+			<!-- Start Area -->
+			<section class="home-about-area">
 				<div class="container-fluid">
 					<div class="row align-items-center justify-content-end">
 						<div class="col-lg-6 col-md-12 home-about-left">
+							
 					</div>
 				</div>	
 			</section>
+			<!-- End Area -->
 			
-
+	
+			<!-- Sta Area -->
 			<section class="area section-gap">
 				<div class="container">
 					<div class="row d-flex justify-content-center">
 						<div class="menu-content pb-60 col-lg-9">
 							<div class="title text-center">
 								
+								</div>	
 							</div>														
 
 						</div>
 					</div>
 				</div>	
-			</section>	
+			</section>
+			<!-- End Area -->			
 
 			<!-- start footer Area -->		
 			<footer class="footer-area section-gap">
@@ -355,7 +415,8 @@
 						<div class="col-lg-3  col-md-6 col-sm-6">
 							<div class="single-footer-widget">
 								<h6>Newsletter</h6>
-								<p>If you would like to be updated with our latest flights and news, sign up for our newsletter via email.			
+								<p>
+									If you would like to be updated with our latest flights and news, sign up for our newsletter via email.									
 								</p>								
 								<div id="mc_embed_signup">
 									<form target="_blank" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01" method="get" class="subscription relative">
@@ -370,17 +431,20 @@
 						</div>
 						<div class="col-lg-3  col-md-6 col-sm-6">
 							<div class="single-footer-widget mail-chimp">
+								
 							</div>
 						</div>						
 					</div>
 
 					<div class="row footer-bottom d-flex justify-content-between align-items-center">
-						<p class="col-lg-8 col-sm-12 footer-text m-0"><
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | </p>
+						<p class="col-lg-8 col-sm-12 footer-text m-0">
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | 
+</p>
+						
 					</div>
 				</div>
 			</footer>
-			<!-- End footer Area -->
+			<!-- End footer Area -->	
 
 			<script src="js/vendor/jquery-2.2.4.min.js"></script>
 			<script src="js/popper.min.js"></script>
