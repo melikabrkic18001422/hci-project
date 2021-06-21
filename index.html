@@ -32,7 +32,7 @@
 			<script src="jquery-3.6.0.min.js"></script>
 			<script>
 				$(document).ready(function(){
-					$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+					$.get("https://dry-lake-79161.herokuapp.com/api/flights/", (data, status) => {
 							data.flights.forEach((item, index) =>{
 								$('#flights').append(`<tr>
 									<td>${item.to}</td>
@@ -59,7 +59,7 @@
 						let return_date =$("input[name='return']").val();
 						let child= $("input[name='child']").val();
 						let adults = $("input[name='adults']").val();
-						$.post("http://127.0.0.1:8000/api/book-flight/",
+						$.post("https://dry-lake-79161.herokuapp.com/api/book-flight/",
 							{
 							to: to,
 							from: from,
@@ -69,7 +69,7 @@
 							adults: adults
 							},
 							function(){
-								$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+								$.get("https://dry-lake-79161.herokuapp.com/api/flights/", (data, status) => {
 									data.flights.forEach((item, index) =>{
 										$('#flights').append(`<tr>
 											<td>${item.to}</td>
@@ -102,7 +102,7 @@
 					let child= $("input[name='child-edit']").val();
 					let adults = $("input[name='adults-edit']").val();
 					let id = $("input[name='id-edit']").val();
-					$.post("http://127.0.0.1:8000/api/update-flight/",
+					$.post("https://dry-lake-79161.herokuapp.com/api/update-flight/",
 					{
 					  to: to,
 					  from: from,
@@ -113,7 +113,7 @@
 					  flight_id: id
 					},
 					function(){
-						$.get("http://127.0.0.1:8000/api/flights/", (data, status) => {
+						$.get("https://dry-lake-79161.herokuapp.com/api/flights/", (data, status) => {
 							data.flights.forEach((item, index) =>{
 								$('#flights').append(`<tr>
 									<td>${item.to}</td>
@@ -136,7 +136,7 @@
 				  });
 				});
 				function dosomething(value){
-					$.post("http://127.0.0.1:8000/api/flight-data/", {flight_id:value}, (data, status)=>{
+					$.post("https://dry-lake-79161.herokuapp.com/api/flight-data/", {flight_id:value}, (data, status)=>{
 						$("input[name='to-edit']").val(data.to)
 						$("input[name='from-edit']").val(data.from)
 						$("input[name='start-edit']").val(data.start_date)
@@ -152,7 +152,7 @@
 				});
 
 				function delete_endpoint(value){
-					$.post("http://127.0.0.1:8000/api/delete-flight/", {flight_id:value}, (data, status)=>{
+					$.post("https://dry-lake-79161.herokuapp.com/api/delete-flight/", {flight_id:value}, (data, status)=>{
 						console.log(status)
 						location.reload(true);
 					}); 
