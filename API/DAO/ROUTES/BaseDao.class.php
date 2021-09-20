@@ -15,7 +15,7 @@ try {
   $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   echo "Connected successfully";
 } catch(PDOException $e) {
-  echo "Connection failed: " . $e->getMessage();
+  throw $e;
 }
 
 
@@ -33,7 +33,12 @@ public function update(){
 }
 
 
-public function query(){
+public function query($query,$params){
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id=?");
+    $stmt->execute([$id]); 
+    $user = $stmt->fetch();
+    
 
 }
 
